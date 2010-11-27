@@ -2,7 +2,7 @@
 " Description: Ruby cyclomatic complexity analizer
 " Author:      Max Vasiliev <vim@skammer.name>
 " Licence:     WTFPL
-" Version:     0.0.1
+" Version:     0.0.2
 "
 " This will add cyclomatic complexity annotations to your source code. It is
 " no longer wrong (as previous versions were!)
@@ -58,8 +58,9 @@ class Flog
           [:lit, :str].include? recv.arglist[1][0]) then
           msg = recv[2]
           submsg = recv.arglist[1][1]
-          in_klass msg do                           # :task
-            in_method submsg, exp.file, exp.line, exp.last.line do # :name
+          in_klass msg do
+          lastline = exp.last.respond_to?(:line) ? exp.last.line : nil
+            in_method submsg, exp.file, exp.line, lastline do
               process_until_empty exp
             end
           end
@@ -68,9 +69,9 @@ class Flog
     end
     add_to_score :branch
 
-    exp.delete 0 # TODO: what is this?
+    exp.delete 0
 
-    process exp.shift # no penalty for LHS
+    process exp.shift
 
     penalize_by 0.1 do
       process_until_empty exp
@@ -81,57 +82,42 @@ class Flog
 
   def return_report
     complexity_results = {}
-    # io.puts "%8.1f: %s" % [total, "flog total"]
-    # io.puts "%8.1f: %s" % [average, "flog/method average"]
-
-    # return if option[:score]
-
     max = option[:all] ? nil : total * THRESHOLD
-
-    # output_details io, max
-
     each_by_score max do |class_method, score, call_list|
-      # self.print_score io, class_method, score
-
       location = @method_locations[class_method]
       if location then
         line, endline = location.match(/.+:(\d+):(\d+)/).to_a[1..2]
         # This is a strange case of flog failing on blocks.
         # http://blog.zenspider.com/2009/04/parsetree-eol.html
-        if line > endline then line, endline = (endline.to_i-1).to_s, line end
+        if line.to_i >= endline.to_i then line, endline = (endline.to_i-1).to_s, line end
         complexity_results[line] = [score, class_method, endline]
       end
     end
     complexity_results
-
   ensure
     self.reset
   end
-
 end
-
-
 
 def show_complexity(results = {})
   VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
-  results.keys.sort { |a, b| a <=> b }.each do |line_number|
-    # mark=results[line_number][0].to_i
-    # VIM.command ":sign define complexity_#{mark} text=#{mark} texthl=#{mark}"
-    complexity = case results[line_number][0]
-      when 0..7 then "low_complexity"
+  results.each do |line_number, rest|
+    complexity = case rest[0]
+      when 0..7  then "low_complexity"
       when 7..14 then "medium_complexity"
-      else "high_complexity"
+      else            "high_complexity"
     end
-    (line_number..results[line_number][2]).each do |line|
-      # VIM.command ":sign place #{line} line=#{line} name=complexity_#{mark} file=#{VIM::Buffer.current.name}"
+    (line_number.to_i..rest[2].to_i).each do |line|
       VIM.command ":sign place #{line} line=#{line} name=#{complexity} file=#{VIM::Buffer.current.name}"
     end
   end
 end
+
 EOF
 
 function! ShowComplexity()
 ruby << EOF
+
 options = {
       :quiet    => true,
       :continue => true,
@@ -141,6 +127,7 @@ options = {
 flogger = Flog.new options
 flogger.flog VIM::Buffer.current.name
 show_complexity flogger.return_report
+
 EOF
 
 " no idea why it is needed to update colors each time
