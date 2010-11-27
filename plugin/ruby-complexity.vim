@@ -59,7 +59,7 @@ class Flog
           msg = recv[2]
           submsg = recv.arglist[1][1]
           in_klass msg do                           # :task
-            in_method submsg, exp.file, exp.line do # :name
+            in_method submsg, exp.file, exp.line, exp.last.line do # :name
               process_until_empty exp
             end
           end
@@ -96,6 +96,9 @@ class Flog
       location = @method_locations[class_method]
       if location then
         line, endline = location.match(/.+:(\d+):(\d+)/).to_a[1..2]
+        # This is a strange case of flog failing on blocks.
+        # http://blog.zenspider.com/2009/04/parsetree-eol.html
+        if line > endline then line, endline = (endline.to_i-1).to_s, line end
         complexity_results[line] = [score, class_method, endline]
       end
     end
@@ -111,13 +114,16 @@ end
 
 def show_complexity(results = {})
   VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
-  results.keys.each do |line_number|
+  results.keys.sort { |a, b| a <=> b }.each do |line_number|
+    # mark=results[line_number][0].to_i
+    # VIM.command ":sign define complexity_#{mark} text=#{mark} texthl=#{mark}"
     complexity = case results[line_number][0]
       when 0..7 then "low_complexity"
       when 7..14 then "medium_complexity"
       else "high_complexity"
     end
     (line_number..results[line_number][2]).each do |line|
+      # VIM.command ":sign place #{line} line=#{line} name=complexity_#{mark} file=#{VIM::Buffer.current.name}"
       VIM.command ":sign place #{line} line=#{line} name=#{complexity} file=#{VIM::Buffer.current.name}"
     end
   end
@@ -139,18 +145,18 @@ EOF
 
 " no idea why it is needed to update colors each time
 " to actually see the colors
-hi low_complexity guifg=#004400 guibg=#004400
+hi low_complexity    guifg=#004400 guibg=#004400
 hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
-hi high_complexity guifg=#ff2222 guibg=#ff2222
+hi high_complexity   guifg=#ff2222 guibg=#ff2222
 endfunction
 
-hi SignColumn guifg=fg guibg=bg
-hi low_complexity guifg=#004400 guibg=#004400
+hi SignColumn        guifg=fg      guibg=bg
+hi low_complexity    guifg=#004400 guibg=#004400
 hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
-hi high_complexity guifg=#ff2222 guibg=#ff2222
+hi high_complexity   guifg=#ff2222 guibg=#ff2222
 
-sign define low_complexity text=XX texthl=low_complexity
+sign define low_complexity    text=XX texthl=low_complexity
 sign define medium_complexity text=XX texthl=medium_complexity
-sign define high_complexity text=XX texthl=high_complexity
+sign define high_complexity   text=XX texthl=high_complexity
 
 autocmd! BufReadPost,BufWritePost,FileReadPost,FileWritePost *.rb call ShowComplexity()
