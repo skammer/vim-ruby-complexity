@@ -22,7 +22,7 @@ require 'optparse'
 require 'flog'
 
 class Flog
-  def in_method(name, file, line, endline)
+  def in_method(name, file, line, endline=nil)
     endline = line if endline.nil?
     method_name = Regexp === name ? name.inspect : name.to_s
     @method_stack.unshift method_name
@@ -59,7 +59,7 @@ class Flog
           msg = recv[2]
           submsg = recv.arglist[1][1]
           in_klass msg do                           # :task
-            in_method submsg, exp.file, exp.line, exp.last.line do # :name
+            in_method submsg, exp.file, exp.line do # :name
               process_until_empty exp
             end
           end
