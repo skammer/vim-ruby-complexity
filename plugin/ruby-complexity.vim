@@ -111,7 +111,7 @@ end
 
 def show_complexity(results = {})
   VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
-  results.keys.sort { |a, b| a <=> b }.each do |line_number|
+  results.keys.each do |line_number|
     complexity = case results[line_number][0]
       when 0..7 then "low_complexity"
       when 7..14 then "medium_complexity"
@@ -128,7 +128,7 @@ function! ShowComplexity()
 ruby << EOF
 options = {
       :quiet    => true,
-      :continue => false,
+      :continue => true,
       :all      => true
     }
 
@@ -139,9 +139,9 @@ EOF
 
 " no idea why it is needed to update colors each time
 " to actually see the colors
-" hi low_complexity guifg=#004400 guibg=#004400
-" hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
-" hi high_complexity guifg=#ff2222 guibg=#ff2222
+hi low_complexity guifg=#004400 guibg=#004400
+hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
+hi high_complexity guifg=#ff2222 guibg=#ff2222
 endfunction
 
 hi SignColumn guifg=fg guibg=bg
