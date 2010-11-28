@@ -11,9 +11,9 @@ if !has('ruby')
   finish
 endif
 
-let s:low_complexity_color = "#004400"
+let s:low_complexity_color    = "#004400"
 let s:medium_complexity_color = "#bbbb00"
-let s:high_complexity_color = "#ff2222"
+let s:high_complexity_color   = "#ff2222"
 
 if exists(g:rubycomplexity_color_low)
   let s:low_complexity_color = g:rubycomplexity_color_low
@@ -26,8 +26,6 @@ endif
 if exists(g:rubycomplexity_color_high)
   let s:high_complexity_color = g:rubycomplexity_color_high
 endif
-
-
 
 ruby << EOF
 
@@ -113,7 +111,7 @@ class Flog
 end
 
 def show_complexity(results = {})
-  # VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
+  VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
   results.each do |line_number, rest|
     complexity = case rest[0]
       when 0..7  then "low_complexity"
@@ -135,7 +133,7 @@ function! s:UpdateHighlighting()
 endfunction
 
 function! ShowComplexity()
-silent exe ':sign unplace file='.expand("%")
+
 ruby << EOF
 
 options = {
@@ -146,24 +144,17 @@ options = {
 
 flogger = Flog.new options
 flogger.flog VIM::Buffer.current.name
-# VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
 show_complexity flogger.return_report
 
 EOF
 
 call s:UpdateHighlighting()
-" hi low_complexity    guifg=#004400 guibg=#004400
-" hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
-" hi high_complexity   guifg=#ff2222 guibg=#ff2222
 
 endfunction
 
-hi SignColumn        guifg=fg      guibg=bg
+hi SignColumn guifg=fg guibg=bg
 
 call s:UpdateHighlighting()
-" hi low_complexity    guifg=#004400 guibg=#004400
-" hi medium_complexity guifg=#bbbb00 guibg=#bbbb00
-" hi high_complexity   guifg=#ff2222 guibg=#ff2222
 
 sign define low_complexity    text=XX texthl=low_complexity
 sign define medium_complexity text=XX texthl=medium_complexity
