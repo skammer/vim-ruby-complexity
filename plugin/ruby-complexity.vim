@@ -15,15 +15,15 @@ let s:low_complexity_color    = "#004400"
 let s:medium_complexity_color = "#bbbb00"
 let s:high_complexity_color   = "#ff2222"
 
-if exists(g:rubycomplexity_color_low)
+if exists("g:rubycomplexity_color_low")
   let s:low_complexity_color = g:rubycomplexity_color_low
 endif
 
-if exists(g:rubycomplexity_color_medium)
+if exists("g:rubycomplexity_color_medium")
   let s:medium_complexity_color = g:rubycomplexity_color_medium
 endif
 
-if exists(g:rubycomplexity_color_high)
+if exists("g:rubycomplexity_color_high")
   let s:high_complexity_color = g:rubycomplexity_color_high
 endif
 
@@ -161,6 +161,6 @@ sign define medium_complexity text=XX texthl=medium_complexity
 sign define high_complexity   text=XX texthl=high_complexity
 
 
-" if !exists(g:rubycomplexity_load_at_startup) || g:rubycomplexity_load_at_startup
+if !exists("g:rubycomplexity_load_at_startup") || g:rubycomplexity_load_at_startup
   autocmd! BufReadPost,BufWritePost,FileReadPost,FileWritePost *.rb call ShowComplexity()
-" endif
+endif
