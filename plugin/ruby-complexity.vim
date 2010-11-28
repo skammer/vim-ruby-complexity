@@ -3,10 +3,6 @@
 " Author:      Max Vasiliev <vim@skammer.name>
 " Licence:     WTFPL
 " Version:     0.0.2
-"
-" This will add cyclomatic complexity annotations to your source code. It is
-" no longer wrong (as previous versions were!)
-
 
 if !has('signs')
     finish
@@ -59,7 +55,10 @@ class Flog
           msg = recv[2]
           submsg = recv.arglist[1][1]
           in_klass msg do
-          lastline = exp.last.respond_to?(:line) ? exp.last.line : nil
+            lastline = exp.last.respond_to?(:line) ? exp.last.line : nil # zomg teh hax!
+            # This is really weird. If a block has nothing in it, then for some
+            # strange reason exp.last becomes nil. I really don't care why this
+            # happens, just an annoying fact.
             in_method submsg, exp.file, exp.line, lastline do
               process_until_empty exp
             end
@@ -68,15 +67,11 @@ class Flog
       end
     end
     add_to_score :branch
-
     exp.delete 0
-
     process exp.shift
-
     penalize_by 0.1 do
       process_until_empty exp
     end
-
     s()
   end
 
@@ -86,10 +81,10 @@ class Flog
     each_by_score max do |class_method, score, call_list|
       location = @method_locations[class_method]
       if location then
-        line, endline = location.match(/.+:(\d+):(\d+)/).to_a[1..2]
+        line, endline = location.match(/.+:(\d+):(\d+)/).to_a[1..2].map{|l| l.to_i }
         # This is a strange case of flog failing on blocks.
         # http://blog.zenspider.com/2009/04/parsetree-eol.html
-        if line.to_i >= endline.to_i then line, endline = (endline.to_i-1).to_s, line end
+        line, endline = endline-1, line if line >= endline
         complexity_results[line] = [score, class_method, endline]
       end
     end
@@ -107,7 +102,7 @@ def show_complexity(results = {})
       when 7..14 then "medium_complexity"
       else            "high_complexity"
     end
-    (line_number.to_i..rest[2].to_i).each do |line|
+    (line_number..rest[2]).each do |line|
       VIM.command ":sign place #{line} line=#{line} name=#{complexity} file=#{VIM::Buffer.current.name}"
     end
   end
