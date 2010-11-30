@@ -14,6 +14,8 @@ endif
 let s:low_complexity_color    = "#004400"
 let s:medium_complexity_color = "#bbbb00"
 let s:high_complexity_color   = "#ff2222"
+let s:medium_limit            = 7
+let s:high_limit              = 14
 
 if exists("g:rubycomplexity_color_low")
   let s:low_complexity_color = g:rubycomplexity_color_low
@@ -27,10 +29,17 @@ if exists("g:rubycomplexity_color_high")
   let s:high_complexity_color = g:rubycomplexity_color_high
 endif
 
+if exists("g:rubycomplexity_medium_limit")
+  let s:medium_limit = g:rubycomplexity_medium_limit
+endif
+
+if exists("g:rubycomplexity_high_limit")
+  let s:high_limit = g:rubycomplexity_high_limit
+endif
+
 ruby << EOF
 
 require 'rubygems'
-require 'optparse'
 require 'flog'
 
 class Flog
@@ -113,10 +122,12 @@ end
 def show_complexity(results = {})
   VIM.command ":silent sign unplace file=#{VIM::Buffer.current.name}"
   results.each do |line_number, rest|
+    medium_limit = VIM::evaluate('s:medium_limit')
+    high_limit = VIM::evaluate('s:high_limit')
     complexity = case rest[0]
-      when 0..7  then "low_complexity"
-      when 7..14 then "medium_complexity"
-      else            "high_complexity"
+      when 0..medium_limit          then "low_complexity"
+      when medium_limit..high_limit then "medium_complexity"
+      else                               "high_complexity"
     end
     (line_number..rest[2]).each do |line|
       VIM.command ":sign place #{line} line=#{line} name=#{complexity} file=#{VIM::Buffer.current.name}"
@@ -161,6 +172,6 @@ sign define medium_complexity text=XX texthl=medium_complexity
 sign define high_complexity   text=XX texthl=high_complexity
 
 
-if !exists("g:rubycomplexity_load_at_startup") || g:rubycomplexity_load_at_startup
+if !exists("g:rubycomplexity_enable_at_startup") || g:rubycomplexity_enable_at_startup
   autocmd! BufReadPost,BufWritePost,FileReadPost,FileWritePost *.rb call ShowComplexity()
 endif
