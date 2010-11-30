@@ -48,11 +48,11 @@ Sets medium complexity limit. Default value is `7`.
 Sets high complexity limit. Default value is `14`.
 
 
-`0------7------14-------max`
-`       |       \`
-`       |        -g:rubycomplexity_high_limit`
-`       \`
-`        -g:rubycomplexity_medium_limit`
+    0------7------14-------max
+           |       \
+           |        -g:rubycomplexity_high_limit
+           \
+            -g:rubycomplexity_medium_limit
 
 Known bugs
 ----------
