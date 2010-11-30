@@ -4,7 +4,7 @@ Ruby Cyclomatic Complexity Plugin
 `rubycomplexity.vim` plugin computes how complex your methods are using Flog magic and
 neatly displays it to you in the signs column next to your code.
 
-![Screen shot](http://github.com/skammer/vim-css-color/raw/master/Screen%20shot%202010-11-29%20at%2013.23.46.png)
+![Screen shot](https://github.com/skammer/ruby-complexity/raw/master/Screen%20shot%202010-11-29%20at%2013.23.46.png)
 
 Requirements
 ------------
