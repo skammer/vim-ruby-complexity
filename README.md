@@ -63,7 +63,7 @@ Known bugs
 Links
 -----
 
-@garybernhardt's '[pycomplexity.vim](http://bitbucket.org/garybernhardt/pycomplexity).
+@garybernhardt's [pycomplexity.vim](http://bitbucket.org/garybernhardt/pycomplexity).
 
 @topfunky's [rubycomplexity.el](https://github.com/topfunky/emacs-starter-kit/tree/master/vendor/ruby-complexity/)
 
