@@ -154,7 +154,7 @@ options = {
     }
 
 flogger = Flog.new options
-flogger.flog VIM::Buffer.current.name
+flogger.flog ::VIM::Buffer.current.name
 show_complexity flogger.return_report
 
 EOF
