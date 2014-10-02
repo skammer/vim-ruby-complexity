@@ -11,11 +11,14 @@ if !has('ruby')
   finish
 endif
 
-let s:low_complexity_color    = "#004400"
-let s:medium_complexity_color = "#bbbb00"
-let s:high_complexity_color   = "#ff2222"
-let s:medium_limit            = 7
-let s:high_limit              = 14
+let s:low_complexity_color          = "#004400"
+let s:low_complexity_color_cterm    = "22"
+let s:medium_complexity_color       = "#bbbb00"
+let s:medium_complexity_color_cterm = "142"
+let s:high_complexity_color         = "#ff2222"
+let s:high_complexity_color_cterm   = "196"
+let s:medium_limit                  = 7
+let s:high_limit                    = 14
 
 if exists("g:rubycomplexity_color_low")
   let s:low_complexity_color = g:rubycomplexity_color_low
@@ -138,9 +141,9 @@ end
 EOF
 
 function! s:UpdateHighlighting()
-  exe 'hi low_complexity guifg='.s:low_complexity_color.' guibg='.s:low_complexity_color
-  exe 'hi medium_complexity guifg='.s:medium_complexity_color.' guibg='.s:medium_complexity_color
-  exe 'hi high_complexity guifg='.s:high_complexity_color.' guibg='.s:high_complexity_color
+  exe 'hi low_complexity guifg='.s:low_complexity_color.' guibg='.s:low_complexity_color.' ctermfg='.s:low_complexity_color_cterm.' ctermbg='.s:low_complexity_color_cterm
+  exe 'hi medium_complexity guifg='.s:medium_complexity_color.' guibg='.s:medium_complexity_color.' ctermfg='.s:medium_complexity_color_cterm.' ctermbg='.s:medium_complexity_color_cterm
+  exe 'hi high_complexity guifg='.s:high_complexity_color.' guibg='.s:high_complexity_color.' ctermfg='.s:high_complexity_color_cterm.' ctermbg='.s:high_complexity_color_cterm
 endfunction
 
 function! ShowComplexity()
